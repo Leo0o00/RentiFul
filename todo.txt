@@ -1,0 +1,6 @@
+- Implementar automatizaciones para el despliegue tanto del front como del back
+- Para el front:
+	- Implementar el componente del mapa
+- Para el back:
+	- Terminar de hacer todos los Todos del proyecto
+	- Agregar Docker y docker-compose
