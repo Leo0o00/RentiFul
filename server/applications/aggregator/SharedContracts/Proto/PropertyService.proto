@@ -1,0 +1,26 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "SharedContracts";
+
+package PropertyService;
+
+service PropertyQueries {
+  rpc GetPropertyInfo (GetPropertyInfoRequest) returns (GetPropertyInfoReply);
+}
+
+message GetPropertyInfoRequest {
+  string PropertyId = 1;
+}
+
+message GetPropertyInfoReply {
+  string Id = 1;
+  string PhotoUrl = 2;
+  string Name = 3;
+  string PricePerMonth = 4;
+  LocationType Location = 5;
+}
+
+message LocationType{
+  string City = 1;
+  string Country = 2;
+}

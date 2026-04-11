@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "SharedContracts";
+
+package LeaseService;
+
+service LeaseQueries {
+  rpc GetLeaseInfo (GetLeaseInfoRequest) returns (GetLeaseInfoReply);
+}
+
+message GetLeaseInfoRequest {
+  string LeaseId = 1;
+}
+
+message GetLeaseInfoReply {
+  string Id = 1;
+  google.protobuf.Timestamp StartDate = 2;
+  google.protobuf.Timestamp EndDate = 3;
+}

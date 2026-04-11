@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "SharedContracts";
+
+package ManagerService;
+
+service ManagerQueries {
+  rpc GetManagerInfo (GetManagerInfoRequest) returns (GetManagerInfoReply);
+}
+
+message GetManagerInfoRequest {
+  string ManagerCognitoId = 1;
+}
+
+message GetManagerInfoReply {
+  string ManagerCognitoId = 1;
+  string Name = 2;
+  string PhoneNumber = 3;
+  string Email = 4;
+}
