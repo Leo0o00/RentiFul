@@ -3,15 +3,25 @@
 import { NAVBAR_HEIGHT } from "@/lib/constants";
 import { useAppDispatch, useAppSelector } from "@/state/redux";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import FiltersBar from "./FiltersBar";
 import FiltersFull from "./FiltersFull";
 import { cleanParams } from "@/lib/utils";
 import { setFilters } from "@/state";
-import Map from "./Map";
+// import Map from "./Map";
 import Listings from "./Listings";
+import dynamic from "next/dynamic";
 
 const SearchPage = () => {
+  const Map = useMemo(
+    () =>
+      dynamic(() => import("@/app/(nondashboard)/search/Map"), {
+        loading: () => <p>A map is loading</p>,
+        ssr: false,
+      }),
+    []
+  );
+
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const isFiltersFullOpen = useAppSelector(
@@ -56,8 +66,7 @@ const SearchPage = () => {
         >
           <FiltersFull />
         </div>
-        {/* <Map /> */}
-        <div>Map component here!</div>
+        <Map />
         <div className="basis-4/12 overflow-y-auto">
           <Listings />
         </div>

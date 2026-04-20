@@ -33,19 +33,19 @@ const FiltersBar = () => {
   const viewMode = useAppSelector((state) => state.global.viewMode);
   const [searchInput, setSearchInput] = useState(filters.location);
 
-  const updateURL = debounce((newFilters: FiltersState) => {
-    const cleanFilters = cleanParams(newFilters);
-    const updatedSearchParams = new URLSearchParams();
+  // const updateURL = debounce((newFilters: FiltersState) => {
+  //   const cleanFilters = cleanParams(newFilters);
+  //   const updatedSearchParams = new URLSearchParams();
 
-    Object.entries(cleanFilters).forEach(([key, value]) => {
-      updatedSearchParams.set(
-        key,
-        Array.isArray(value) ? value.join(",") : value.toString()
-      );
-    });
+  //   Object.entries(cleanFilters).forEach(([key, value]) => {
+  //     updatedSearchParams.set(
+  //       key,
+  //       Array.isArray(value) ? value.join(",") : value.toString()
+  //     );
+  //   });
 
-    router.push(`${pathname}?${updatedSearchParams.toString()}`);
-  });
+  //   router.push(`${pathname}?${updatedSearchParams.toString()}`);
+  // });
 
   const handleFilterChange = (
     key: string,
@@ -69,11 +69,39 @@ const FiltersBar = () => {
 
     const newFilters = { ...filters, [key]: newValue };
     dispatch(setFilters(newFilters));
-    updateURL(newFilters);
+    // updateURL(newFilters);
   };
 
   const handleLocationSearch = async () => {
-    // TODO: Uncomment this when configured mapbox or any othe map provider in the project
+    try {
+      const response = await fetch(
+        `https://api.maptiler.com/geocoding/${encodeURIComponent(
+          searchInput
+        )}.json?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY}&fuzzyMatch=true`
+      );
+
+      const data = await response.json();
+      console.log({ data });
+
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        dispatch(
+          setFilters({
+            location: searchInput,
+            coordinates: {
+              lat,
+              lng,
+            },
+          })
+        );
+
+        // handleFilterChange("location", searchInput, null);
+        // handleFilterChange("coordinates", [lng, lat], null);
+      }
+    } catch (err) {
+      console.error("Error search location:", err);
+    }
+
     // try {
 
     //   const response = await fetch(
@@ -105,7 +133,7 @@ const FiltersBar = () => {
     //   })
     // );
 
-    handleFilterChange("location", searchInput, null);
+    // handleFilterChange("location", searchInput, null);
   };
 
   return (
@@ -129,6 +157,7 @@ const FiltersBar = () => {
         <div className="flex items-center">
           <Input
             placeholder="Search location"
+            defaultValue={filters.location}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="w-40 rounded-l-xl rounded-r-none border-primary-400 border-r-0"

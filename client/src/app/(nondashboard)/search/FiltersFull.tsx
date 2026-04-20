@@ -21,37 +21,37 @@ import { Label } from "@/components/ui/label";
 
 const FiltersFull = () => {
   const dispatch = useDispatch();
-  const router = useRouter();
-  const pathname = usePathname();
+  // const router = useRouter();
+  // const pathname = usePathname();
   const filters = useAppSelector((state) => state.global.filters);
-  const [localFilters, setLocalFilters] = useState(initialState.filters);
+  const [localFilters, setLocalFilters] = useState(filters);
   const isFiltersFullOpen = useAppSelector(
     (state) => state.global.isFiltersFullOpen
   );
 
-  const updateURL = debounce((newFilters: FiltersState) => {
-    const cleanFilters = cleanParams(newFilters);
-    const updatedSearchParams = new URLSearchParams();
+  // const updateURL = debounce((newFilters: FiltersState) => {
+  //   const cleanFilters = cleanParams(newFilters);
+  //   const updatedSearchParams = new URLSearchParams();
 
-    Object.entries(cleanFilters).forEach(([key, value]) => {
-      updatedSearchParams.set(
-        key,
-        Array.isArray(value) ? value.join(",") : value.toString()
-      );
-    });
+  //   Object.entries(cleanFilters).forEach(([key, value]) => {
+  //     updatedSearchParams.set(
+  //       key,
+  //       Array.isArray(value) ? value.join(",") : value.toString()
+  //     );
+  //   });
 
-    router.push(`${pathname}?${updatedSearchParams.toString()}`);
-  });
+  //   router.push(`${pathname}?${updatedSearchParams.toString()}`);
+  // });
 
   const handleSubmit = () => {
     dispatch(setFilters(localFilters));
-    updateURL(localFilters);
+    // updateURL(localFilters);
   };
 
   const handleReset = () => {
     setLocalFilters(initialState.filters);
     dispatch(setFilters(initialState.filters));
-    updateURL(initialState.filters);
+    // updateURL(initialState.filters);
   };
 
   const handleAmenityChange = (amenity: AmenityEnum) => {
@@ -66,24 +66,46 @@ const FiltersFull = () => {
   const handleLocationSearch = async () => {
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+        `https://api.maptiler.com/geocoding/${encodeURIComponent(
           localFilters.location
-        )}.json?access_token=${
-          process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
-        }&fuzzyMatch=true`
+        )}.json?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY}&fuzzyMatch=true`
       );
       const data = await response.json();
       if (data.features && data.features.length > 0) {
         const [lng, lat] = data.features[0].center;
         setLocalFilters((prev) => ({
           ...prev,
-          coordinates: [lng, lat],
+          coordinates: {
+            lat,
+            lng,
+          },
         }));
       }
     } catch (err) {
       console.error("Error search location:", err);
     }
   };
+  // const handleLocationSearch = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+  //         localFilters.location
+  //       )}.json?access_token=${
+  //         process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+  //       }&fuzzyMatch=true`
+  //     );
+  //     const data = await response.json();
+  //     if (data.features && data.features.length > 0) {
+  //       const [lng, lat] = data.features[0].center;
+  //       setLocalFilters((prev) => ({
+  //         ...prev,
+  //         coordinates: [lng, lat],
+  //       }));
+  //     }
+  //   } catch (err) {
+  //     console.error("Error search location:", err);
+  //   }
+  // };
 
   if (!isFiltersFullOpen) return null;
 

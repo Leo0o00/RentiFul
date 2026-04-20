@@ -7,9 +7,8 @@ namespace Properties.Data.Helpers;
 
 public static class PropertyQueryBuilder
 {
-    public static IQueryable<Property> ApplyFilters(IQueryable<Property> query, PropertiesQueryFilters filter)
+    public static IQueryable<Property>  ApplyFilters(IQueryable<Property> query, PropertiesQueryFilters filter)
     {
-        // Todo: Usar location como filtro tambien
         if (!string.IsNullOrWhiteSpace(filter.Location))
         {
             var location = filter.Location.Trim();

@@ -53,12 +53,11 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 // CORS
-// Todo: Configurar esto correctamente y en base a las variables de entorno
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3001");
+        policy.WithOrigins(builder.Configuration["AllowedOrigin"]!);
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
     });

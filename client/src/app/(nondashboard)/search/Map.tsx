@@ -1,14 +1,24 @@
 "use client";
-import React, { useEffect, useRef } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import React, { useEffect, useRef, useState } from "react";
+// import mapboxgl from "mapbox-gl";
+// import "mapbox-gl/dist/mapbox-gl.css";
 import { useAppSelector } from "@/state/redux";
 import { useGetPropertiesQuery } from "@/state/api";
-import { Property } from "@/types/prismaTypes";
+import {
+  config,
+  LngLatLike,
+  MapOptions,
+  Map,
+  LngLat,
+  Marker,
+  Popup,
+  MapStyle,
+} from "@maptiler/sdk";
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
+// mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
+config.apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY as string;
 
-const Map = () => {
+const MapComponent = () => {
   const mapContainerRef = useRef(null);
   const filters = useAppSelector((state) => state.global.filters);
   const {
@@ -20,14 +30,26 @@ const Map = () => {
   useEffect(() => {
     if (isLoading || isError || !properties) return;
 
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current!,
-      style: "mapbox://styles/majesticglue/cm6u301pq008b01sl7yk1cnvb",
-      center: filters.coordinates || [-74.5, 40],
-      zoom: 9,
-    });
+    const center: LngLatLike = new LngLat(
+      filters.coordinates.lng,
+      filters.coordinates.lat
+    );
+    console.log({ center });
 
-    properties.forEach((property) => {
+    const options: MapOptions = {
+      container: mapContainerRef.current!,
+      style: MapStyle.STREETS.DEFAULT,
+      center,
+      zoom: 9,
+    };
+
+    const map = new Map(options);
+
+    const bbox = map.getBounds();
+
+    console.log({ bbox });
+
+    properties.properties.forEach((property) => {
       const marker = createPropertyMarker(property, map);
       const markerElement = marker.getElement();
       const path = markerElement.querySelector("path[fill='#3FB1CE']");
@@ -59,14 +81,14 @@ const Map = () => {
   );
 };
 
-const createPropertyMarker = (property: Property, map: mapboxgl.Map) => {
-  const marker = new mapboxgl.Marker()
+const createPropertyMarker = (property: PropertyListElement, map: Map) => {
+  const marker = new Marker()
     .setLngLat([
       property.location.coordinates.longitude,
       property.location.coordinates.latitude,
     ])
     .setPopup(
-      new mapboxgl.Popup().setHTML(
+      new Popup().setHTML(
         `
         <div class="marker-popup">
           <div class="marker-popup-image"></div>
@@ -85,4 +107,4 @@ const createPropertyMarker = (property: Property, map: mapboxgl.Map) => {
   return marker;
 };
 
-export default Map;
+export default MapComponent;

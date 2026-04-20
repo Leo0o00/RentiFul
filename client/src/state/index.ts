@@ -1,3 +1,4 @@
+import * as maptilersdk from "@maptiler/sdk";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface FiltersState {
@@ -9,7 +10,10 @@ export interface FiltersState {
   availableFrom: string;
   priceRange: [number, number] | [null, null];
   squareFeet: [number, number] | [null, null];
-  coordinates?: [number, number];
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
 }
 
 interface InitialStateTypes {
@@ -20,7 +24,7 @@ interface InitialStateTypes {
 
 export const initialState: InitialStateTypes = {
   filters: {
-    location: "Miami",
+    location: "",
     beds: "any",
     baths: "any",
     propertyType: "any",
@@ -28,6 +32,10 @@ export const initialState: InitialStateTypes = {
     availableFrom: "any",
     priceRange: [null, null],
     squareFeet: [null, null],
+    coordinates: {
+      lng: 0,
+      lat: 0,
+    },
   },
   isFiltersFullOpen: false,
   viewMode: "grid",
@@ -46,6 +54,7 @@ export const globalSlice = createSlice({
     setViewMode: (state, action: PayloadAction<"grid" | "list">) => {
       state.viewMode = action.payload;
     },
+    resetFilters: () => initialState,
   },
 });
 
