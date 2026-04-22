@@ -1,7 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-// import mapboxgl from "mapbox-gl";
-// import "mapbox-gl/dist/mapbox-gl.css";
 import { useAppSelector } from "@/state/redux";
 import { useGetPropertiesQuery } from "@/state/api";
 import {
@@ -14,8 +12,8 @@ import {
   Popup,
   MapStyle,
 } from "@maptiler/sdk";
+import "@maptiler/sdk/dist/maptiler-sdk.css";
 
-// mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 config.apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY as string;
 
 const MapComponent = () => {
@@ -88,10 +86,10 @@ const createPropertyMarker = (property: PropertyListElement, map: Map) => {
       property.location.coordinates.latitude,
     ])
     .setPopup(
-      new Popup().setHTML(
+      new Popup({ closeButton: false }).setHTML(
         `
         <div class="marker-popup">
-          <div class="marker-popup-image"></div>
+          <div class="marker-popup-image"><img src="${property.photoUrls[0]}" alt=""/></div>
           <div>
             <a href="/search/${property.id}" target="_blank" class="marker-popup-title">${property.name}</a>
             <p class="marker-popup-price">
