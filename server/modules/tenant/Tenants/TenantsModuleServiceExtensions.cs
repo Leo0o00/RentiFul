@@ -64,4 +64,12 @@ public static class TenantsModuleServiceExtensions
         ;
         return endpoints;
     }
+
+    public static async Task MigrateTenantsDbAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        TenantDbContext dbContext = scope.ServiceProvider
+            .GetRequiredService<TenantDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
 }

@@ -28,10 +28,13 @@ const MapComponent = () => {
   useEffect(() => {
     if (isLoading || isError || !properties) return;
 
-    const center: LngLatLike = new LngLat(
-      filters.coordinates.lng,
-      filters.coordinates.lat
-    );
+    const center: LngLatLike =
+      properties.properties.length > 0
+        ? new LngLat(
+            properties.properties[0].location.coordinates.longitude,
+            properties.properties[0].location.coordinates.latitude
+          )
+        : new LngLat(filters.coordinates.lng, filters.coordinates.lat);
     console.log({ center });
 
     const options: MapOptions = {

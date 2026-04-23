@@ -5,6 +5,7 @@ using Applications.Features.Application.CreateApplication;
 using Applications.Grpc;
 using Applications.Sagas;
 using MassTransit;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,6 +77,14 @@ public static class ApplicationsModuleServiceExtensions
             });
     }
 
+    public static async Task MigrateApplicationsDbAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        ApplicationDbContext dbContext = scope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
+
     public class BaseHttp2AddressNotFoundException : NotSupportedException
     {
         public BaseHttp2AddressNotFoundException(string key)
@@ -84,6 +93,7 @@ public static class ApplicationsModuleServiceExtensions
 
         }
     }
+
 
 
 }

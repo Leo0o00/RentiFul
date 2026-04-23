@@ -84,4 +84,12 @@ public static class PropertiesModuleServiceExtensions
             ;
         return endpoints;
     }
+
+    public static async Task MigratePropertiesDbAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        PropertyDbContext dbContext = scope.ServiceProvider
+            .GetRequiredService<PropertyDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
 }

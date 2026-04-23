@@ -256,7 +256,7 @@ const FiltersFull = () => {
         </div>
 
         {/* Amenities */}
-        <div>
+        {/* <div>
           <h4 className="font-bold mb-2">Amenities</h4>
           <div className="flex flex-wrap gap-2">
             {Object.entries(AmenityIcons).map(([amenity, Icon]) => (
@@ -277,7 +277,7 @@ const FiltersFull = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Available From */}
         <div>

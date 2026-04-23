@@ -48,5 +48,13 @@ public static class ManagersModuleServiceExtensions
         ;
         return endpoints;
     }
+
+    public static async Task MigrateManagersDbAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        ManagerDbContext dbContext = scope.ServiceProvider
+            .GetRequiredService<ManagerDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
     
 }

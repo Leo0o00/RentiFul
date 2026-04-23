@@ -57,9 +57,7 @@ const Listings = () => {
     <div className="w-full">
       <h3 className="text-sm px-4 font-bold">
         {properties.count}{" "}
-        <span className="text-gray-700 font-normal">
-          Places in {filters.location}
-        </span>
+        <span className="text-gray-700 font-normal">Rentals Available</span>
       </h3>
       <div className="flex">
         <div className="p-4 w-full">

@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,5 +35,13 @@ public static class PaymentsModuleServiceExtensions
     public static void AddPaymentModuleConsumers(this IRegistrationConfigurator configurator)
     {
         configurator.AddConsumers(typeof(PaymentEventsConsumers));
+    }
+
+    public static async Task MigratePaymentsDbAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        PaymentDbContext dbContext = scope.ServiceProvider
+            .GetRequiredService<PaymentDbContext>();
+        await dbContext.Database.MigrateAsync();
     }
 }

@@ -55,5 +55,13 @@ public static class LeasesModuleServiceExtensions
         return endpoints;
     }
 
+    public static async Task MigrateLeasesDbAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        LeaseDbContext dbContext = scope.ServiceProvider
+            .GetRequiredService<LeaseDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
+
 
 }
