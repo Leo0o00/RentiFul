@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Tenants.Features.Tenant.CreateTenant.Handler;
 using Tenants.Features.Tenant.GetTenantDetails.Endpoint;
 using Tenants.Features.Tenant.UpdateTenant.Handler;
@@ -21,6 +22,7 @@ public class UpdateTenant : Endpoint<UpdateTenantRequest>
     {
         Put($"/{Constants.ModuleName}/" + "{CognitoId}");
         Roles("tenant");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(UpdateTenantRequest request, CancellationToken cancellationToken = default)

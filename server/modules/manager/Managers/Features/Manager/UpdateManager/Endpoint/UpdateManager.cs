@@ -2,6 +2,7 @@
 using FastEndpoints;
 using Managers.Features.Manager.UpdateManager.Handler;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 
 namespace Managers.Features.Manager.UpdateManager.Endpoint;
 
@@ -20,6 +21,7 @@ public class UpdateManager : Endpoint<UpdateManagerRequest>
     {
         Put($"/{Constants.ModuleName}/" + "{CognitoId}");
         Roles("manager");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(UpdateManagerRequest request, CancellationToken cancellationToken = default)

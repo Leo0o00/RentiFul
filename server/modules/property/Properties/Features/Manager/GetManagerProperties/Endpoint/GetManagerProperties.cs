@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Properties.Contracts;
 using Properties.Features.Manager.GetManagerProperties.Handler;
 using Properties.Features.Property.GetAllPropertiesPaged.Endpoint;
@@ -23,6 +24,7 @@ public class GetManagerProperties : Endpoint<GetManagerPropertiesRequest, Result
     {
         Get( "/managers/{CognitoId}/" + $"{Constants.ModuleName}");
         Roles("manager");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetManagerPropertiesRequest request, CancellationToken ct)

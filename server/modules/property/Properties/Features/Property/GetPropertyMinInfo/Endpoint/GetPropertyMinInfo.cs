@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Properties.Contracts;
 using Properties.Features.Property.GetPropertyMinInfo.Handler;
 
@@ -21,6 +22,7 @@ public class GetPropertyMinInfo : Endpoint<GetPropertyMinInfoRequest, Result<Pro
         Get($"/{Constants.ModuleName}/" + "{PropertyId}/minimal-information");
         Roles("manager", "tenant");
         AllowAnonymous();
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetPropertyMinInfoRequest request, CancellationToken ct)

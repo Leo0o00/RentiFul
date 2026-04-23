@@ -13,7 +13,6 @@ using FastEndpoints.Swagger;
 using Leases;
 using Managers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
@@ -36,6 +35,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((_, config) => config.ReadFrom.Configuration(builder.Configuration));
 builder.Services.AddHttpLogging(o => { });
+builder.Services.AddProblemDetails();
 
 // For RPC endpoints
 builder.WebHost.ConfigureKestrel(options =>
@@ -96,23 +96,30 @@ builder.Services.AddRateLimiter(options =>
 
     options.OnRejected = async (context, token) =>
     {
+        var httpContext = context.HttpContext;
+        httpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+        var detail = "Too many requests. Please try again later.";
+
         if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfter))
         {
-            context.HttpContext.Response.Headers.RetryAfter = $"{retryAfter.TotalSeconds}";
-
-            var problemDetailsFactory =
-                context.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
-
-            var problemDetails = problemDetailsFactory
-                .CreateProblemDetails(
-                    context.HttpContext,
-                    StatusCodes.Status429TooManyRequests,
-                    "Too Many Requests",
-                    detail: $"Too many requests. Please try again after {retryAfter.TotalSeconds} seconds."
-                );
-
-            await context.HttpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken: token);
+            httpContext.Response.Headers.RetryAfter = $"{retryAfter.TotalSeconds}";
+            detail = $"Too many requests. Please try again after {retryAfter.TotalSeconds} seconds.";
         }
+
+        var problemDetailsService =
+            httpContext.RequestServices.GetRequiredService<IProblemDetailsService>();
+
+        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = httpContext,
+            ProblemDetails =
+            {
+                Status = StatusCodes.Status429TooManyRequests,
+                Title = "Too Many Requests",
+                Detail = detail
+            }
+        });
     };
 
     options.AddPolicy("per-user", httpContext =>

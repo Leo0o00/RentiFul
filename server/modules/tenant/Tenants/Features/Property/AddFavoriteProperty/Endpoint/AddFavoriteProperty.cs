@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Tenants.Features.Property.AddFavoriteProperty.Handler;
 
 namespace Tenants.Features.Property.AddFavoriteProperty.Endpoint;
@@ -21,6 +22,8 @@ public class AddFavoriteProperty : Endpoint<AddFavoritePropertyRequest>
     {
         Post($"/{Constants.ModuleName}/" + "{CognitoId}/favorites/{PropertyId}");
           Roles("tenant");
+
+          Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(AddFavoritePropertyRequest request, CancellationToken cancellationToken = default)

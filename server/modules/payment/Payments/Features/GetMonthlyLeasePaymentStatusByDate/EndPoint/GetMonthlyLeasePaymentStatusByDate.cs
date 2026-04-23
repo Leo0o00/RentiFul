@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Payments.Contracts;
 using Payments.Features.GetMonthlyLeasePaymentStatusByDate.Handler;
 
@@ -19,6 +20,7 @@ public class GetMonthlyLeasePaymentStatusByDate : Endpoint<GetMonthlyLeasePaymen
     {
         Get("/leases/{LeaseId}/payment-status/{DueDate}");
         Roles("manager");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetMonthlyLeasePaymentStatusByDateRequest request, CancellationToken ct)

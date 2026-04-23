@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Properties.Contracts;
 using Properties.Features.Property.GetPropertyDetails.Handler;
 
@@ -20,6 +21,7 @@ public class GetPropertyDetails : Endpoint<GetPropertyDetailsRequest, Result<Pro
     {
         Get($"/{Constants.ModuleName}/" + "{PropertyId}");
         AllowAnonymous();
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetPropertyDetailsRequest request, CancellationToken cancellationToken = default)

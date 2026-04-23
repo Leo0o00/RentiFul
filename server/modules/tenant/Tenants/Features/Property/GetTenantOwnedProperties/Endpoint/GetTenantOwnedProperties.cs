@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Tenants.Contracts;
 using Tenants.Features.Tenant.CreateTenant.Endpoint;
 using Tenants.Features.Tenant.CreateTenant.Handler;
@@ -23,6 +24,7 @@ public class GetTenantOwnedProperties : Endpoint<GetTenantOwnedPropertiesRequest
     {
         Get($"/{Constants.ModuleName}/" + "{CognitoId}/current-residences");
         Roles("tenant");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetTenantOwnedPropertiesRequest request, CancellationToken cancellationToken = default)

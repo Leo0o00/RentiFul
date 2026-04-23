@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Tenants.Contracts;
 using Tenants.Features.Tenant.CreateTenant.Handler;
@@ -23,6 +24,7 @@ public class CreateTenant : Endpoint<CreateTenantRequest, Result<CreateTenantRes
     {
         Post($"/{Constants.ModuleName}");
         Roles("tenant");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(CreateTenantRequest request, CancellationToken cancellationToken = default)

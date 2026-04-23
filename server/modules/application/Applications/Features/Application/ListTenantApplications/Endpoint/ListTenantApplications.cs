@@ -7,6 +7,7 @@ using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 
 namespace Applications.Features.Application.ListTenantApplications.Endpoint;
 
@@ -17,6 +18,7 @@ public class ListTenantApplications(IMediator mediator)
     {
         Get($"/tenants/{Constants.ModuleName}");
         Roles("tenant");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(ListTenantApplicationsRequest request, CancellationToken ct)

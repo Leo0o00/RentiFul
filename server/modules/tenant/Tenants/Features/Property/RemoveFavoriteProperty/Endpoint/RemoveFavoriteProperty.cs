@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Tenants.Features.Property.AddFavoriteProperty.Endpoint;
 using Tenants.Features.Property.AddFavoriteProperty.Handler;
 using Tenants.Features.Property.RemoveFavoriteProperty.Handler;
@@ -22,6 +23,7 @@ public class RemoveFavoriteProperty : Endpoint<RemoveFavoritePropertyRequest>
     {
         Delete($"/{Constants.ModuleName}/" + "{CognitoId}/favorites/{PropertyId}");
         Roles("tenant");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(RemoveFavoritePropertyRequest request, CancellationToken cancellationToken = default)

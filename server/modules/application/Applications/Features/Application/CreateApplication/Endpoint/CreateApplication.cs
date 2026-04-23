@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace Applications.Features.Application.CreateApplication.Endpoint;
@@ -19,6 +20,7 @@ public class CreateApplication : Endpoint<CreateApplicationRequest>
     {
         Post($"/{Constants.ModuleName}");
         Roles("tenant");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(CreateApplicationRequest request, CancellationToken ct)

@@ -3,6 +3,7 @@ using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Managers.Features.Manager.CreateManager.Handler;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace Managers.Features.Manager.CreateManager.Endpoint;
@@ -22,6 +23,7 @@ public class CreateManager : Endpoint<CreateManagerRequest>
     {
         Post($"/{Constants.ModuleName}");
         Roles("manager");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(CreateManagerRequest request, CancellationToken cancellationToken = default)

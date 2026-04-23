@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Properties.Contracts;
 using Properties.Features.Manager.GetManagerProperties.Endpoint;
 using Properties.Features.Manager.GetManagerProperties.Handler;
@@ -24,6 +25,7 @@ public class GetAllPropertiesInIdList : Endpoint<GetAllPropertiesInIdListRequest
     {
         Post($"/{Constants.ModuleName}/in-id-list/");
         Roles("tenant");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetAllPropertiesInIdListRequest request, CancellationToken ct)

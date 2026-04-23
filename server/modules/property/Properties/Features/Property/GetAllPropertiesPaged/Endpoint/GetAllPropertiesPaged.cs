@@ -2,6 +2,7 @@
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 using Properties.Contracts;
 using Properties.Features.Property.GetAllPropertiesPaged.Handler;
 
@@ -22,6 +23,7 @@ public class GetAllPropertiesPaged : Endpoint<GetAllPropertiesPagedRequest, Resu
     {
         Get($"/{Constants.ModuleName}");
         AllowAnonymous();
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetAllPropertiesPagedRequest request, CancellationToken cancellationToken = default)

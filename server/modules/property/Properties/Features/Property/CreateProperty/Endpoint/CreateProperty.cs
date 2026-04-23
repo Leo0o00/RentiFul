@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 
 namespace Properties.Features.Property.CreateProperty.Endpoint;
 
@@ -20,6 +21,8 @@ public class CreateProperty : Endpoint<CreatePropertyRequest>
         Post($"/{Constants.ModuleName}");
         Roles("manager");
         AllowFileUploads();
+
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(CreatePropertyRequest request, CancellationToken cancellationToken = default)

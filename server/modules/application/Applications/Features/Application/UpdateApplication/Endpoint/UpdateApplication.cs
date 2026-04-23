@@ -4,6 +4,7 @@ using Applications.Features.Application.UpdateApplication.Handler;
 using Ardalis.Result.AspNetCore;
 using FastEndpoints;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 
 namespace Applications.Features.Application.UpdateApplication.Endpoint;
 
@@ -20,6 +21,8 @@ public class UpdateApplication : Endpoint<UpdateApplicationRequest>
     {
         Post($"/{Constants.ModuleName}/" + "{ApplicationId}/status");
         Roles("manager");
+
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(UpdateApplicationRequest request, CancellationToken ct)

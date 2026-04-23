@@ -3,6 +3,7 @@ using FastEndpoints;
 using Leases.Contracts;
 using Leases.Features.Tenant.GetLeasesForTenant.Handler;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
 
 namespace Leases.Features.Tenant.GetLeasesForTenant.Endpoint;
 
@@ -19,6 +20,7 @@ public class GetLeasesForTenant : Endpoint<GetLeasesForTenantRequest, LeasesResp
     {
         Get("/tenants/{CognitoId}/properties/{PropertyId}" + $"/{Constants.ModuleName}");
         Roles("tenant", "manager");
+        Options(x => x.RequireRateLimiting("per-user"));
     }
 
     public override async Task HandleAsync(GetLeasesForTenantRequest request, CancellationToken ct)
