@@ -133,7 +133,7 @@ builder.Services.AddRateLimiter(options =>
                 userId,
                 _ => new TokenBucketRateLimiterOptions
                 {
-                    TokenLimit = 5,
+                    TokenLimit = 25,
                     TokensPerPeriod = 2,
                     ReplenishmentPeriod = TimeSpan.FromMinutes(1)
                 });
@@ -143,7 +143,7 @@ builder.Services.AddRateLimiter(options =>
             "anonymous",
             _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 5,
+                PermitLimit = 10,
                 Window = TimeSpan.FromMinutes(1)
             });
     });
