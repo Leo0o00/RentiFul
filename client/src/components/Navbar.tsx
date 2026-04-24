@@ -113,7 +113,7 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 focus:outline-none">
                   <Avatar>
-                    <AvatarImage src={authUser.userInfo?.image} />
+                    {/* <AvatarImage src={authUser.userInfo?.image} /> */}
                     <AvatarFallback className="bg-primary-600">
                       {authUser.userRole?.[0].toUpperCase()}
                     </AvatarFallback>

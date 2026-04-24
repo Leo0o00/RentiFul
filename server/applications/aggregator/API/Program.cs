@@ -37,21 +37,8 @@ builder.Host.UseSerilog((_, config) => config.ReadFrom.Configuration(builder.Con
 builder.Services.AddHttpLogging(o => { });
 builder.Services.AddProblemDetails();
 
-// For RPC endpoints
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenLocalhost(5001, listenOptions =>
-    {
-        listenOptions.UseHttps();
-        listenOptions.Protocols = HttpProtocols.Http2;
-    });
-
-    options.ListenLocalhost(5168, listenOptions =>
-    {
-        listenOptions.UseHttps();
-        listenOptions.Protocols = HttpProtocols.Http1;
-    });
-});
+var kestrelRuntimeSettings = KestrelRuntimeSettings.From(builder.Configuration);
+builder.WebHost.ConfigureKestrel(kestrelRuntimeSettings.Configure);
 
 // CORS
 builder.Services.AddCors(options =>

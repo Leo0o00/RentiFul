@@ -12,6 +12,11 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddMassTransitConfig(this IServiceCollection services,
         IConfiguration configuration)
     {
+        var rabbitMqUri = configuration.GetConnectionString("RabbitMq")
+            ?? throw new InvalidOperationException("ConnectionStrings:RabbitMq must be configured.");
+        var rabbitMqUsername = configuration["RabbitMq:Username"] ?? "guest";
+        var rabbitMqPassword = configuration["RabbitMq:Password"] ?? "guest";
+
         services.AddMassTransit(busConfigurator =>
         {
             busConfigurator.SetKebabCaseEndpointNameFormatter();
@@ -27,10 +32,10 @@ public static class ServiceRegistrationExtensions
 
             busConfigurator.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host(new Uri(configuration.GetConnectionString("RabbitMq")!), hst =>
+                cfg.Host(new Uri(rabbitMqUri), hst =>
                 {
-                    hst.Username("guest");
-                    hst.Password("guest");
+                    hst.Username(rabbitMqUsername);
+                    hst.Password(rabbitMqPassword);
                 });
 
                 cfg.UseInMemoryOutbox(context);

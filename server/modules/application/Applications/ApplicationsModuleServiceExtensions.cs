@@ -30,6 +30,7 @@ public static class ApplicationsModuleServiceExtensions
         var leasesBaseHttp2Address = config.GetValue<string>(leasesBaseHttp2AddressKey) ?? throw new BaseHttp2AddressNotFoundException(leasesBaseHttp2AddressKey);
         var tenantsBaseHttp2Address = config.GetValue<string>(tenantsBaseHttp2AddressKey) ?? throw new BaseHttp2AddressNotFoundException(tenantsBaseHttp2AddressKey);
         var managersBaseHttp2Address = config.GetValue<string>(managersBaseHttp2AddressKey) ?? throw new BaseHttp2AddressNotFoundException(managersBaseHttp2AddressKey);
+        var allowInsecureTls = ShouldAllowInsecureTls(config);
 
 
         string? connectionString = config.GetConnectionString("ApplicationsConnectionString");
@@ -50,15 +51,50 @@ public static class ApplicationsModuleServiceExtensions
             .AddCreateApplication()
             ;
 
-            // Add gRPC client services
-        services.AddGrpcClient<LeaseQueries.LeaseQueriesClient>(client => { client.Address = new Uri(leasesBaseHttp2Address); });
-        services.AddGrpcClient<PropertyQueries.PropertyQueriesClient>(client => { client.Address = new Uri(propertiesBaseHttp2Address); });
-        services.AddGrpcClient<TenantQueries.TenantQueriesClient>(client => { client.Address = new Uri(tenantsBaseHttp2Address); });
-        services.AddGrpcClient<ManagerQueries.ManagerQueriesClient>(client => { client.Address = new Uri(managersBaseHttp2Address); });
+        // Allow containerized loopback gRPC to work with mounted development certificates.
+        AddGrpcClient<LeaseQueries.LeaseQueriesClient>(services, leasesBaseHttp2Address, allowInsecureTls);
+        AddGrpcClient<PropertyQueries.PropertyQueriesClient>(services, propertiesBaseHttp2Address, allowInsecureTls);
+        AddGrpcClient<TenantQueries.TenantQueriesClient>(services, tenantsBaseHttp2Address, allowInsecureTls);
+        AddGrpcClient<ManagerQueries.ManagerQueriesClient>(services, managersBaseHttp2Address, allowInsecureTls);
 
         mediatRAssemblies.Add(typeof(ApplicationsModuleServiceExtensions).Assembly);
         logger.Information("{Module} module services registered", Constants.ModuleName);
         return services;
+    }
+
+    private static void AddGrpcClient<TClient>(
+        IServiceCollection services,
+        string address,
+        bool allowInsecureTls)
+        where TClient : class
+    {
+        var grpcClientBuilder = services.AddGrpcClient<TClient>(client => { client.Address = new Uri(address); });
+
+        if (!allowInsecureTls ||
+            !Uri.TryCreate(address, UriKind.Absolute, out var downstreamUri) ||
+            !string.Equals(downstreamUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
+            !downstreamUri.IsLoopback)
+        {
+            return;
+        }
+
+        grpcClientBuilder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        });
+    }
+
+    private static bool ShouldAllowInsecureTls(IConfiguration configuration)
+    {
+        if (configuration.GetValue<bool>("Downstream:AllowInsecureTls"))
+        {
+            return true;
+        }
+
+        return string.Equals(
+            Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"),
+            bool.TrueString,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     public static void AddApplicationModuleConsumers(this IRegistrationConfigurator configurator)

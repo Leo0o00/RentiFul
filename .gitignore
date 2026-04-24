@@ -1,0 +1,4 @@
+.env
+.env.*
+!.env.compose.example
+compose.override.yaml

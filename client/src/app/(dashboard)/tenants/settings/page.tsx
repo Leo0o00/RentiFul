@@ -13,6 +13,10 @@ const TenantSettings = () => {
 
   if (isLoading) return <>Loading...</>;
 
+  if (!authUser) {
+    throw new Error("Unauthorized access");
+  }
+
   const initialData = {
     name: authUser?.userInfo.name,
     email: authUser?.userInfo.email,

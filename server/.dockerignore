@@ -1,0 +1,17 @@
+.git
+.gitignore
+.idea
+.vs
+**/bin
+**/obj
+**/.DS_Store
+**/*.user
+**/*.suo
+**/*.swp
+**/*.tmp
+**/*.log
+TestResults
+artifacts
+docker-compose*
+AGENTS.md
+AGENTS.override.md

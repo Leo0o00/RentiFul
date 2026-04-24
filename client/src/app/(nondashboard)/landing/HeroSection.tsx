@@ -15,49 +15,36 @@ const HeroSection = () => {
   const router = useRouter();
 
   const handleLocationSearch = async () => {
-    // try {
-    //   const trimmedQuery = searchQuery.trim();
-    //   if (!trimmedQuery) return;
+    try {
+      const trimmedQuery = searchQuery.trim();
+      if (!trimmedQuery) return;
 
-    //   const response = await fetch(
-    //     `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-    //       trimmedQuery
-    //     )}.json?access_token=${
-    //       process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
-    //     }&fuzzyMatch=true`
-    //   );
-    //   const data = await response.json();
-    //   if (data.features && data.features.length > 0) {
-    //     const [lng, lat] = data.features[0].center;
-    //     dispatch(
-    //       setFilters({
-    //         location: trimmedQuery,
-    //         coordinates: [lat, lng],
-    //       })
-    //     );
-    //     const params = new URLSearchParams({
-    //       location: trimmedQuery,
-    //       lat: lat.toString(),
-    //       lng: lng,
-    //     });
-    //     router.push(`/search?${params.toString()}`);
-    //   }
-    // } catch (error) {
-    //   console.error("error search location:", error);
-    // }
+      const response = await fetch(
+        `https://api.maptiler.com/geocoding/${encodeURIComponent(
+          trimmedQuery
+        )}.json?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY}&fuzzyMatch=true`
+      );
 
-    const trimmedQuery = searchQuery.trim();
-    if (!trimmedQuery) return;
-    dispatch(
-      setFilters({
-        location: trimmedQuery,
-      })
-    );
-    const params = new URLSearchParams({
-      location: trimmedQuery,
-    });
+      const data = await response.json();
 
-    router.push(`/search?${params.toString()}`);
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        dispatch(
+          setFilters({
+            location: trimmedQuery,
+            coordinates: {
+              lat,
+              lng,
+            },
+          })
+        );
+        router.push(`/search`);
+        // handleFilterChange("location", searchInput, null);
+        // handleFilterChange("coordinates", [lng, lat], null);
+      }
+    } catch (error) {
+      console.error("error search location:", error);
+    }
   };
 
   return (

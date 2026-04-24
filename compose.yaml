@@ -1,0 +1,116 @@
+name: rental-app
+
+x-postgres-connection-string: &postgres-connection-string "Host=postgres;Port=5432;Username=${POSTGRES_USER:-rental_app};Password=${POSTGRES_PASSWORD:-change-me};Database=${POSTGRES_DB:-rental_app}"
+x-rabbitmq-uri: &rabbitmq-uri "amqp://rabbitmq:5672"
+
+services:
+  rental-app-client:
+    image: rental-app-client:local
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-http://localhost:5168}"
+        NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID: "${NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID:-}"
+        NEXT_PUBLIC_AWS_COGNITO_USER_POOL_CLIENT_ID: "${NEXT_PUBLIC_AWS_COGNITO_USER_POOL_CLIENT_ID:-}"
+        NEXT_PUBLIC_MAPTILER_API_KEY: "${NEXT_PUBLIC_MAPTILER_API_KEY:-}"
+    depends_on:
+      rental-app-server:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-http://localhost:5168}"
+      NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID: "${NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID:-}"
+      NEXT_PUBLIC_AWS_COGNITO_USER_POOL_CLIENT_ID: "${NEXT_PUBLIC_AWS_COGNITO_USER_POOL_CLIENT_ID:-}"
+      NEXT_PUBLIC_MAPTILER_API_KEY: "${NEXT_PUBLIC_MAPTILER_API_KEY:-}"
+    init: true
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  rental-app-server:
+    image: rental-app-server:local
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    depends_on:
+      rental-app-db:
+        condition: service_healthy
+      rental-app-mq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      AllowedOrigin: "http://localhost:3000"
+      ConnectionStrings__TenantsConnectionString: *postgres-connection-string
+      ConnectionStrings__ManagersConnectionString: *postgres-connection-string
+      ConnectionStrings__PropertiesConnectionString: *postgres-connection-string
+      ConnectionStrings__LeasesConnectionString: *postgres-connection-string
+      ConnectionStrings__PaymentsConnectionString: *postgres-connection-string
+      ConnectionStrings__ApplicationsConnectionString: *postgres-connection-string
+      ConnectionStrings__RabbitMq: *rabbitmq-uri
+      RabbitMq__Username: "${RABBITMQ_DEFAULT_USER:-rental_app}"
+      RabbitMq__Password: "${RABBITMQ_DEFAULT_PASS:-change-me}"
+      KestrelRuntime__BindAddress: "0.0.0.0"
+      KestrelRuntime__GrpcPort: "5001"
+      KestrelRuntime__GrpcUseHttps: "false"
+      KestrelRuntime__HttpPort: "5168"
+      KestrelRuntime__HttpUseHttps: "false"
+      Downstream__Properties__BaseHttp2Address: "http://127.0.0.1:5001"
+      Downstream__Leases__BaseHttp2Address: "http://127.0.0.1:5001"
+      Downstream__Tenants__BaseHttp2Address: "http://127.0.0.1:5001"
+      Downstream__Managers__BaseHttp2Address: "http://127.0.0.1:5001"
+      Authentication__MetadataAddress: "${AUTHENTICATION__METADATAADDRESS:-}"
+      Authentication__ValidIssuer: "${AUTHENTICATION__VALIDISSUER:-}"
+      Authentication__Audience: "${AUTHENTICATION__AUDIENCE:-}"
+      S3Settings__Region: "${S3SETTINGS__REGION:-}"
+      S3Settings__BucketName: "${S3SETTINGS__BUCKETNAME:-}"
+      S3Settings__AccessKey: "${S3SETTINGS__ACCESSKEY:-}"
+      S3Settings__SecretAccessKey: "${S3SETTINGS__SECRETACCESSKEY:-}"
+    init: true
+    ports:
+      - "5168:5168"
+    restart: unless-stopped
+
+  rental-app-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-rental_app}"
+      POSTGRES_USER: "${POSTGRES_USER:-rental_app}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-change-me}"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-rental_app} -d ${POSTGRES_DB:-rental_app}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  rental-app-mq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER:-rental_app}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS:-change-me}"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: unless-stopped
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  postgres-data:
+  rabbitmq-data:

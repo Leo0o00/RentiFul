@@ -35,7 +35,6 @@ const MapComponent = () => {
             properties.properties[0].location.coordinates.latitude
           )
         : new LngLat(filters.coordinates.lng, filters.coordinates.lat);
-    console.log({ center });
 
     const options: MapOptions = {
       container: mapContainerRef.current!,

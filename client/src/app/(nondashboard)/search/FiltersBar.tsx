@@ -81,7 +81,6 @@ const FiltersBar = () => {
       );
 
       const data = await response.json();
-      console.log({ data });
 
       if (data.features && data.features.length > 0) {
         const [lng, lat] = data.features[0].center;

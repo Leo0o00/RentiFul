@@ -1,10 +1,19 @@
 import { useGetPropertyQuery } from "@/state/api";
 import { Compass, MapPin } from "lucide-react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
 import React, { useEffect, useRef } from "react";
+import {
+  config,
+  LngLatLike,
+  MapOptions,
+  Map,
+  LngLat,
+  Marker,
+  Popup,
+  MapStyle,
+} from "@maptiler/sdk";
+import "@maptiler/sdk/dist/maptiler-sdk.css";
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
+config.apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY as string;
 
 const PropertyLocation = ({ propertyId }: PropertyDetailsProps) => {
   const {
@@ -14,32 +23,32 @@ const PropertyLocation = ({ propertyId }: PropertyDetailsProps) => {
   } = useGetPropertyQuery(propertyId);
   const mapContainerRef = useRef(null);
 
-  // useEffect(() => {
-  //   if (isLoading || isError || !property) return;
+  useEffect(() => {
+    if (isLoading || isError || !property) return;
 
-  //   const map = new mapboxgl.Map({
-  //     container: mapContainerRef.current!,
-  //     style: "mapbox://styles/majesticglue/cm6u301pq008b01sl7yk1cnvb",
-  //     center: [
-  //       property.location.coordinates.longitude,
-  //       property.location.coordinates.latitude,
-  //     ],
-  //     zoom: 14,
-  //   });
+    const map = new Map({
+      container: mapContainerRef.current!,
+      style: MapStyle.STREETS.DEFAULT,
+      center: [
+        property.location.coordinates.longitude,
+        property.location.coordinates.latitude,
+      ],
+      zoom: 14,
+    });
 
-  //   const marker = new mapboxgl.Marker()
-  //     .setLngLat([
-  //       property.location.coordinates.longitude,
-  //       property.location.coordinates.latitude,
-  //     ])
-  //     .addTo(map);
+    const marker = new Marker()
+      .setLngLat([
+        property.location.coordinates.longitude,
+        property.location.coordinates.latitude,
+      ])
+      .addTo(map);
 
-  //   const markerElement = marker.getElement();
-  //   const path = markerElement.querySelector("path[fill='#3FB1CE']");
-  //   if (path) path.setAttribute("fill", "#000000");
+    const markerElement = marker.getElement();
+    const path = markerElement.querySelector("path[fill='#3FB1CE']");
+    if (path) path.setAttribute("fill", "#000000");
 
-  //   return () => map.remove();
-  // }, [property, isError, isLoading]);
+    return () => map.remove();
+  }, [property, isError, isLoading]);
 
   if (isLoading) return <>Loading...</>;
   if (isError || !property) {

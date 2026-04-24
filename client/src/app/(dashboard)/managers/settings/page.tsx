@@ -5,13 +5,19 @@ import {
   useGetAuthUserQuery,
   useUpdateManagerSettingsMutation,
 } from "@/state/api";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const ManagerSettings = () => {
+  const router = useRouter();
   const { data: authUser, isLoading } = useGetAuthUserQuery();
   const [updateManager] = useUpdateManagerSettingsMutation();
 
   if (isLoading) return <>Loading...</>;
+
+  if (!authUser) {
+    throw new Error("Unauthorized access");
+  }
 
   const initialData = {
     name: authUser?.userInfo.name,
