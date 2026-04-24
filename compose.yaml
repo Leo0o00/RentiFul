@@ -1,7 +1,7 @@
 name: rental-app
 
-x-postgres-connection-string: &postgres-connection-string "Host=postgres;Port=5432;Username=${POSTGRES_USER:-rental_app};Password=${POSTGRES_PASSWORD:-change-me};Database=${POSTGRES_DB:-rental_app}"
-x-rabbitmq-uri: &rabbitmq-uri "amqp://rabbitmq:5672"
+x-postgres-connection-string: &postgres-connection-string "Host=rental-app-db;Port=5432;Username=${POSTGRES_USER:-rental_app};Password=${POSTGRES_PASSWORD:-change-me};Database=${POSTGRES_DB:-rental_app}"
+x-rabbitmq-uri: &rabbitmq-uri "amqp://rental-app-mq:5672"
 
 services:
   rental-app-client:
