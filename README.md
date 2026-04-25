@@ -2,6 +2,8 @@
 
 RentiFul is a full-stack rental management platform for discovering properties, submitting rental applications, and managing the relationship between tenants and property managers. The repository contains a Next.js frontend, a modular .NET backend, and Docker Compose infrastructure for running the full stack locally.
 
+![alt text](image.png)
+
 ## Technologies Used
 
 ### Frontend

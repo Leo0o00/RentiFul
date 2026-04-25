@@ -120,7 +120,7 @@ builder.Services.AddRateLimiter(options =>
                 userId,
                 _ => new TokenBucketRateLimiterOptions
                 {
-                    TokenLimit = 25,
+                    TokenLimit = 50,
                     TokensPerPeriod = 2,
                     ReplenishmentPeriod = TimeSpan.FromMinutes(1)
                 });
